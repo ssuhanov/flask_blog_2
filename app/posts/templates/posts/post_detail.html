@@ -10,5 +10,13 @@
 {% endblock %}
 
 {% block content %}
-{{ post.body }}
+<div class="tags">
+    {% for tag in tags%}
+    <a href="{{ url_for('blog.tag_detail', slug=tag.slug) }}"><span class="badge badge-primary">{{ tag.name }}</span></a>
+    {% endfor %}
+</div>
+
+<div class="main-content">
+    {{ post.body }}
+</div>
 {% endblock %}
