@@ -7,7 +7,7 @@ from .forms import PostForm
 posts = Blueprint('blog', __name__, template_folder='templates')
 
 
-#http://127.0.0.1:5000/blog/create
+# http://127.0.0.1:5000/blog/create
 @posts.route('/create', methods=['GET', 'POST'])
 def create_post():
     if request.method == 'POST':
@@ -31,24 +31,32 @@ def create_post():
 @posts.route('/')
 def index():
     q = request.args.get('q')
+    page = request.args.get('page')
 
-    if q:
-        posts = Post.query.filter(Post.title.contains(q) | Post.body.contains(q)).order_by(Post.created_date.desc()).all()
+    if page and page.isdigit():
+        page = int(page)
     else:
-        posts = Post.query.order_by(Post.created_date.desc()).all()
+        page = 1
 
-    return render_template('posts/index.html', posts=posts)
+    posts_query = Post.query
+    if q:
+        posts_query = posts_query.filter(Post.title.contains(q) | Post.body.contains(q))
+
+    posts = posts_query.order_by(Post.created_date.desc())
+    paginated_posts = posts.paginate(page=page, per_page=7)
+
+    return render_template('posts/index.html', paginated_posts=paginated_posts)
 
 
 @posts.route('/<slug>')
 def post_detail(slug):
-    post = Post.query.filter(Post.slug==slug).first()
+    post = Post.query.filter(Post.slug == slug).first()
     tags = post.tags
     return render_template('posts/post_detail.html', post=post, tags=tags)
 
 
 @posts.route('/tag/<slug>')
 def tag_detail(slug):
-    tag = Tag.query.filter(Tag.slug==slug).first()
+    tag = Tag.query.filter(Tag.slug == slug).first()
     posts = tag.posts.all()
     return render_template('posts/tag_detail.html', tag=tag, posts=posts)
