@@ -61,7 +61,7 @@ def index():
     posts = posts_query.order_by(Post.created_date.desc())
     paginated_posts = posts.paginate(page=page, per_page=7)
 
-    return render_template('posts/index.html', paginated_posts=paginated_posts)
+    return render_template('posts/index.html', paginated_posts=paginated_posts, q=q)
 
 
 @posts.route('/<slug>')
